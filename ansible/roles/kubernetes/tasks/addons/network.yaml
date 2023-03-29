@@ -1,0 +1,14 @@
+---
+- name: Install Calico Pod Network
+  include_tasks: ../k8s/create.yaml
+  vars:
+    url: "{{ manifest_urls.calico }}"
+
+- name: Install calicoctl for kubectl
+  get_url:
+    url: "{{ calicoctl_url }}"
+    dest: "{{ install_path }}"
+    mode: 755
+  vars:
+    binary: kubectl-calico
+    install_path: "/usr/local/bin/{{ binary }}"

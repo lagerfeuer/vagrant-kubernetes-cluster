@@ -1,0 +1,9 @@
+---
+user: vagrant
+home: "/home/{{ user }}"
+
+calicoctl_url: https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64
+
+manifest_urls:
+  calico: https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
+  nginx: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.7.0/deploy/static/provider/cloud/deploy.yaml

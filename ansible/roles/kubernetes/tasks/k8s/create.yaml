@@ -1,0 +1,12 @@
+---
+- name: Fetch manifest
+  get_url:
+    url: "{{ url }}"
+    dest: "/tmp/{{ url | basename }}"
+    mode: 644
+- name: Apply manifest
+  kubernetes.core.k8s:
+    src: "/tmp/{{ url | basename }}"
+    state: present
+    wait: "{{ wait | default(true) }}"
+  become_user: "{{ user }}"

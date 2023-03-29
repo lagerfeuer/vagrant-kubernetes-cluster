@@ -1,0 +1,18 @@
+kubeconfig
+# Created by https://www.toptal.com/developers/gitignore/api/vagrant,ansible,docker,kubernetes
+# Edit at https://www.toptal.com/developers/gitignore?templates=vagrant,ansible,docker,kubernetes
+
+### Ansible ###
+*.retry
+
+### Vagrant ###
+# General
+.vagrant/
+
+# Log files (if you are creating logs in debug mode, uncomment this)
+# *.log
+
+### Vagrant Patch ###
+*.box
+
+# End of https://www.toptal.com/developers/gitignore/api/vagrant,ansible,docker,kubernetes

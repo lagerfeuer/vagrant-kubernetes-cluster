@@ -1,0 +1,9 @@
+---
+- name: Add IP addresses of all hosts to /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: ".* {{ item }}$"
+    line: "{{ cluster[item].ip }} {{ item }}"
+    state: present
+  when: cluster[item] is defined
+  with_items: "{{ cluster }}"

@@ -1,0 +1,60 @@
+---
+- name: Initialize the Kubernetes cluster using kubeadm
+  block:
+    - copy:
+        dest: "{{ config_path }}"
+        content: |
+          kind: ClusterConfiguration
+          apiVersion: kubeadm.k8s.io/v1beta3
+          clusterName: vagrantcluster
+          networking:
+            serviceSubnet: 10.0.0.0/16
+            podSubnet: 192.168.0.0/16
+          ---
+          kind: InitConfiguration
+          apiVersion: kubeadm.k8s.io/v1beta3
+          localAPIEndpoint:
+            advertiseAddress: {{ node_ip }}
+          ---
+          kind: KubeletConfiguration
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          cgroupDriver: systemd
+    - command: |
+        kubeadm init \
+          --node-name="{{ ansible_hostname }}" \
+          --config="{{ config_path }}"
+      args:
+        creates: /etc/kubernetes/admin.conf
+  vars:
+    config_path: "{{ home }}/kubeadm-config.yaml"
+
+- name: Create config
+  block:
+    - name: Create config directory
+      file:
+        path: "{{ config_dir }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        state: directory
+
+    - name: Copy config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        remote_src: yes
+        dest: "{{ config_dir }}/config"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+
+    - name: Download config
+      synchronize:
+        mode: pull
+        src: "{{ config_dir }}/config"
+        dest: ../kubeconfig
+  vars:
+    config_dir: "{{ home }}/.kube"
+  notify: kubelet
+
+- meta: flush_handlers
+
+- include_tasks: addons/network.yaml
+# - include_tasks: addons/ingress.yaml

@@ -1,0 +1,26 @@
+---
+# TODO: don't copy to local machine from master and then to worker nodes
+# copy directly from master to worker node by using `delegate_to` and the correct host
+# (just need to figure out what belongs in there)
+- name: Generate join command
+  block:
+    - shell: kubeadm token create --print-join-command > "{{ path }}"
+      args:
+        creates: "{{ path }}"
+
+    - synchronize:
+        mode: pull
+        src: "{{ path }}"
+        dest: "{{ path }}"
+  when: ansible_hostname == "master"
+
+- name: Join cluster
+  block:
+    - synchronize:
+        src: "{{ path }}"
+        dest: "{{ path }}"
+
+    - command: sh "{{ path }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+  when: ansible_hostname != "master"

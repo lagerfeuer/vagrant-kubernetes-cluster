@@ -1,0 +1,73 @@
+---
+- name: Remove old packages
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+
+- name: Add Docker GPG Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install Docker
+  apt:
+    name: "{{ packages }}"
+    state: latest
+    update_cache: yes
+  vars:
+    packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+
+- name: Create docker group
+  group:
+    name: docker
+
+- name: Add User to docker group
+  user:
+    name: "{{ user }}"
+    groups: docker
+    append: yes
+  notify:
+    - docker
+
+- name: Create containerd config
+  block:
+    - name: Check config state
+      shell: grep 'disabled_plugins = \["cri"\]' "{{ config_path }}"
+      register: grep
+      failed_when: grep.rc == 2
+    - name: Remove preinstalled config
+      file:
+        path: "{{ config_path }}"
+        state: absent
+      when: grep.rc == 0
+    - name: Create default config
+      shell: containerd config default > "{{ config_path }}"
+      args:
+        creates: "{{ config_path }}"
+    - name: Enable systemd cgroup driver
+      lineinfile:
+        path: "{{ config_path }}"
+        regexp: "^            SystemdCgroup = (true|false)$"
+        line: "            SystemdCgroup = true"
+        state: present
+      notify:
+        - containerd
+  vars:
+    config_path: /etc/containerd/config.toml
+
+- meta: flush_handlers

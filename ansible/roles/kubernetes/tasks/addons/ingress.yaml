@@ -1,0 +1,5 @@
+---
+- name: Install Nginx Ingress Controller
+  include_tasks: ../k8s/create.yaml
+  vars:
+    url: "{{ manifest_urls.nginx }}"

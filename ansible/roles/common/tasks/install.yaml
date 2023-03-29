@@ -1,0 +1,20 @@
+---
+- name: Install common packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - git
+      - gnupg
+      - gpg
+      - gzip
+      - jq
+      - lsb-release
+      - python3-pip
+      - vim
+      - tar
+      - unzip
+      - zip
+    state: present
+    update_cache: yes

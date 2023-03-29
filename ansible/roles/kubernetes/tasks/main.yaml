@@ -1,0 +1,50 @@
+---
+- name: Add Google GPG Key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes Repository
+  apt_repository:
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+
+- name: Install Kubernetes
+  block:
+    - name: Install Kubernetes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+    - name: Pin package versions
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      with_items: "{{ packages }}"
+  vars:
+    packages:
+      - kubelet
+      - kubeadm
+      - kubectl
+
+- name: Install Kubernetes Python client
+  pip:
+    name:
+      - kubernetes
+
+- name: Configure node ip
+  lineinfile:
+    path: /etc/default/kubelet
+    regexp: "^KUBELET_EXTRA_ARGS="
+    line: 'KUBELET_EXTRA_ARGS="--node-ip={{ node_ip }}"'
+    create: yes
+  notify: kubelet
+
+- meta: flush_handlers
+
+- include_tasks: master.yaml
+  when: ansible_hostname == "master"
+
+- include_tasks: k8s/join.yaml
+  vars:
+    path: /tmp/join.sh

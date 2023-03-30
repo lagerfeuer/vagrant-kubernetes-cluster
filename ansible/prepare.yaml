@@ -1,0 +1,7 @@
+---
+- name: Kubernetes Addons
+  hosts: master
+  become: true
+
+  roles:
+    - addons

@@ -8,7 +8,7 @@
           apiVersion: kubeadm.k8s.io/v1beta3
           clusterName: vagrantcluster
           networking:
-            serviceSubnet: 10.0.0.0/16
+            serviceSubnet: 10.0.0.0/24
             podSubnet: 192.168.0.0/16
           ---
           kind: InitConfiguration
@@ -57,4 +57,3 @@
 - meta: flush_handlers
 
 - include_tasks: addons/network.yaml
-# - include_tasks: addons/ingress.yaml

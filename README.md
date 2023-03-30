@@ -2,8 +2,9 @@
 
 ## Prerequisites
 1. A few tools are needed, make sure they are installed:
-  - vagrant
-  - ansible
+  - Vagrant
+  - Ansible
+  - VirtualBox
 
 2. Make sure to add the following block to `/etc/vbox/networks.conf`, otherwise Vagrant will run into an error. We need this because our nodes are in the `10.0.0.0/16` network and our pods are using the `192.168.0.0/16` network.
 ```
@@ -36,6 +37,14 @@ export KUBECONFIG=kubeconfig
 kubectl config view
 kubectl get nodes -o wide
 ```
+#### Dashboard
+Access to the [dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) is managed through a user called `admin-user`. Run the following steps to generate a token and allow access to the dashboard:
+```shell
+kubectl -n kubernetes-dashboard create token admin-user
+kubectl proxy
+```
+
+Then visit http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ and paste the token there.
 
 Now we can finally deploy something. If you don't know what, then take a look at the [socks-shop]().
 ```shell
@@ -51,8 +60,9 @@ You can change this variable in the `Vagrantfile`.
 
 
 ## TODO
-- [ ] Add [dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) 
-- [ ] Add ingress controller (e.g., [nginx](https://kubernetes.github.io/ingress-nginx/deploy/) in `roles/kubernetes/tasks/addons/ingress.yml`)
+- [x] Add [dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/) 
+- [ ] Add ingress controller (e.g., [nginx](https://kubernetes.github.io/ingress-nginx/deploy/))
+- [ ] Add metrics-server to allow scaling
 - [ ] Allow different OS
   - [ ] Rocky Linux
   - [ ] OpenSUSE

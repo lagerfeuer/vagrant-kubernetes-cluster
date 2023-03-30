@@ -1,0 +1,4 @@
+---
+- include_tasks: cert-manager.yaml
+- include_tasks: dashboard.yaml
+# - include_tasks: ingress.yaml

@@ -45,6 +45,6 @@
 - include_tasks: master.yaml
   when: ansible_hostname == "master"
 
-- include_tasks: k8s/join.yaml
+- include_tasks: join.yaml
   vars:
     path: /tmp/join.sh

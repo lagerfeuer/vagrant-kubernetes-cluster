@@ -1,0 +1,18 @@
+---
+- name: Install Dashboard
+  include_tasks: "{{ playbook_dir }}/tasks/k8s/create.yaml"
+  vars:
+    name: dashboard.yaml
+    url: https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+- name: Create service account
+  include_tasks: "{{ playbook_dir }}/tasks/k8s/create.yaml"
+  vars:
+    name: dashboard-user.yaml
+    content: |
+      ---
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: admin-user
+        namespace: kubernetes-dashboard

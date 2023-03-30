@@ -1,0 +1,26 @@
+---
+- block:
+    - name: Fetch manifest
+      get_url:
+        url: "{{ url }}"
+        dest: "{{ manifest }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        mode: "0644"
+      when: url is defined
+    - name: Create manifest
+      copy:
+        content: "{{ content }}"
+        dest: "{{ manifest }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        mode: "0644"
+      when: content is defined
+    - name: Apply manifest
+      kubernetes.core.k8s:
+        src: "{{ manifest }}"
+        state: present
+        wait: "{{ wait | default(true) }}"
+      become_user: "{{ user }}"
+  vars:
+    manifest: "/tmp/{{ name }}"

@@ -1,0 +1,6 @@
+---
+- name: Install cert-manager
+  include_tasks: "{{ playbook_dir }}/tasks/k8s/create.yaml"
+  vars:
+    name: cert-manager.yaml
+    url: https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml

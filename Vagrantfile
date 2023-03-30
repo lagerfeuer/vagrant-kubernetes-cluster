@@ -1,8 +1,8 @@
-NUM_WORKER_NODES = 3
+NUM_WORKER_NODES = 1
 IP_NETWORK_FMT = "10.0.0.%d"
 
 cluster = {
-  master: {
+  'master': {
     ip: IP_NETWORK_FMT % [10],
     cpus: 2,
     memory: 4096
@@ -16,10 +16,16 @@ cluster = {
   }
 end
 
+groups = {
+  'masters': ['master'],
+  'workers': cluster.keys.select { |n| n.start_with?('worker') }
+}
+
 Vagrant.configure(2) do |v|
   v.vm.box = "ubuntu/jammy64"
+
   cluster.each do |host, config|
-    v.vm.define "#{host}" do |node|
+    v.vm.define host do |node|
       node.vm.hostname = host
       node.vm.network :private_network, ip: config[:ip]
 
@@ -30,8 +36,18 @@ Vagrant.configure(2) do |v|
       end
 
       node.vm.provision :ansible do |ansible|
-        ansible.playbook = "ansible/common.yaml"
+        ansible.playbook = "ansible/bootstrap.yaml"
         ansible.extra_vars = { cluster: cluster, node_ip: config[:ip] }
+        ansible.groups = groups
+      end
+
+      if "#{host}" == cluster.keys.last
+        node.vm.provision :ansible do |ansible|
+          ansible.playbook = "ansible/prepare.yaml"
+          ansible.limit = 'all'
+          ansible.groups = groups
+          ansible.verbose = 'v'
+        end
       end
     end
   end
